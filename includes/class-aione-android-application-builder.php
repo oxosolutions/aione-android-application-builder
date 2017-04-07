@@ -220,7 +220,17 @@ class Aione_Android_Application_Builder {
 					
 				), $atts )
 		);
-		$output = "";
+		
+		global $wpdb;
+		$andriod_app_name = get_option('andriod_app_name');
+		$andriod_app_domain = get_option('andriod_app_domain');
+		$andriod_app_theme = get_option('andriod_app_theme');
+		$andriod_app_icon = get_option('andriod_app_icon');
+		$api_array = array();
+		$api_data_array = array();
+		$api_data_pages_array = array();
+
+		
 		$args = array(
 			'post_type' => 'app_pages',
 			'post_status' => 'publish',
@@ -229,7 +239,35 @@ class Aione_Android_Application_Builder {
 		);
 		$query = new WP_Query( $args );
 		
-		return $output;
+		if ($query->have_posts()) {
+			while ( $query->have_posts() ) {
+				$raw_array= array();
+				$query->the_post();
+				$page_id = $query->post->ID;
+				$page_title = $query->post->post_title;
+				$page_content = $query->post->post_content;
+				$raw_array['id']= $page_id;
+				$raw_array['title']= $page_title;
+				$raw_array['content']= $page_content;
+				array_push($api_data_pages_array, $raw_array);
+			}
+		}
+
+		$api_data_array['app_name'] = $andriod_app_name;
+		$api_data_array['app_domain'] = $andriod_app_domain;
+		$api_data_array['app_theme'] = $andriod_app_theme;
+		$api_data_array['app_icon'] = $andriod_app_icon;
+		$api_data_array['app_version'] = "";
+		$api_data_array['app_last_update'] = "";
+		$api_data_array['app_pages'] = $api_data_pages_array;
+
+		$api_array['status'] = "";
+		$api_array['data'] = $api_data_array;
+		//echo "<pre>";print_r($api_array);echo "</pre>";
+		
+		$json_api = json_decode($api_array);
+		echo $json_api;
+		return $json_api;
 	} // End aione_andriod_api_shortcode()
 
 }
