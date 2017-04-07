@@ -261,13 +261,12 @@ class Aione_Android_Application_Builder {
 		$api_data_array['app_last_update'] = "";
 		$api_data_array['app_pages'] = $api_data_pages_array;
 
-		$api_array['status'] = "";
+		$api_array['status'] = "success";
 		$api_array['data'] = $api_data_array;
-		//echo "<pre>";print_r($api_array);echo "</pre>";
 		
-		$json_api = json_decode($api_array);
-		echo $json_api;
-		return $json_api;
+		$json_api = json_encode($api_array);
+
+		return trim($json_api);
 	} // End aione_andriod_api_shortcode()
 
 }
