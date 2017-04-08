@@ -1,22 +1,15 @@
 <?php
 
 /**
- * The plugin bootstrap file
- *
- * This file is read by WordPress to generate the plugin information in the plugin
- * admin area. This file also includes all of the dependencies used by the plugin,
- * registers the activation and deactivation functions, and defines a function
- * that starts the plugin.
- *
  * @link              http://sgssandhu.com/
  * @since             1.0.0.0
  * @package           Aione_Android_Application_Builder
  *
  * @wordpress-plugin
  * Plugin Name:       Aione Android Application Builder
- * Plugin URI:        http://oxosolutions.com
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
- * Version:           1.3.0.0
+ * Plugin URI:        http://oxosolutions.com/products/wordpress-plugins/aione-android-application-builder/
+ * Description:       Aione Android Application Builder
+ * Version:           1.3.1.0
  * Author:            SGS Sandhu
  * Author URI:        http://sgssandhu.com/
  * License:           GPL-2.0+
@@ -26,6 +19,7 @@
  * GitHub Plugin URI: https://github.com/oxosolutions/aione-android-application-builder
  * GitHub Branch: master
  */
+
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
