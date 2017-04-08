@@ -244,9 +244,11 @@ class Aione_Android_Application_Builder {
 				$raw_array= array();
 				$query->the_post();
 				$page_id = $query->post->ID;
+				$page_slug = $query->post->name;
 				$page_title = $query->post->post_title;
 				$page_content = $query->post->post_content;
 				$raw_array['id']= $page_id;
+				$raw_array['slug']= $page_slug;
 				$raw_array['title']= $page_title;
 				$raw_array['content']= $page_content;
 				array_push($api_data_pages_array, $raw_array);
@@ -263,6 +265,7 @@ class Aione_Android_Application_Builder {
 
 		$api_array['status'] = "success";
 		$api_array['data'] = $api_data_array;
+
 		
 		$json_api = json_encode($api_array);
 
