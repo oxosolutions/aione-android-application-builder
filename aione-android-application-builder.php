@@ -9,7 +9,7 @@
  * Plugin Name:       Aione Android Application Builder
  * Plugin URI:        http://oxosolutions.com/products/wordpress-plugins/aione-android-application-builder/
  * Description:       Aione Android Application Builder
- * Version:           1.3.1.0
+ * Version:           1.4.0.0
  * Author:            SGS Sandhu
  * Author URI:        http://sgssandhu.com/
  * License:           GPL-2.0+

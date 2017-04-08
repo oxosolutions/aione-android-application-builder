@@ -221,14 +221,20 @@ class Aione_Android_Application_Builder {
 				), $atts )
 		);
 		
-		global $wpdb;
-		$andriod_app_name = get_option('andriod_app_name');
-		$andriod_app_domain = get_option('andriod_app_domain');
-		$andriod_app_theme = get_option('andriod_app_theme');
-		$andriod_app_icon = get_option('andriod_app_icon');
+		$app_id = $_REQUEST['app_id'];
+		$app_secret = $_REQUEST['app_secret'];
+		
+		$andriod_app_name = stripslashes(trim(get_option('andriod_app_name')));
+		$andriod_app_domain = stripslashes(trim(get_option('andriod_app_domain')));
+		$andriod_app_theme = stripslashes(trim(get_option('andriod_app_theme')));
+		$andriod_app_icon = stripslashes(trim(get_option('andriod_app_icon')));
+		$andriod_app_footer_content = stripslashes(trim(get_option('andriod_app_footer_content')));
+		$andriod_app_directory= preg_replace("/[^a-z]+/", "", strtolower(stripslashes(trim(get_option('andriod_app_name')))));
+		if($andriod_app_directory == ''){
+			$andriod_app_directory = 'mmf_data';
+		}
 		$api_array = array();
 		$api_data_array = array();
-		$api_data_pages_array = array();
 
 		
 		$args = array(
@@ -239,29 +245,42 @@ class Aione_Android_Application_Builder {
 		);
 		$query = new WP_Query( $args );
 		
-		if ($query->have_posts()) {
-			while ( $query->have_posts() ) {
-				$raw_array= array();
-				$query->the_post();
-				$page_id = $query->post->ID;
-				$page_slug = $query->post->name;
-				$page_title = $query->post->post_title;
-				$page_content = $query->post->post_content;
-				$raw_array['id']= $page_id;
-				$raw_array['slug']= $page_slug;
-				$raw_array['title']= $page_title;
-				$raw_array['content']= $page_content;
-				array_push($api_data_pages_array, $raw_array);
+		$total_pages = $query->post_count;
+		$app_pages = $query->posts;
+		$app_pages_array = array();
+
+		foreach($app_pages as $app_page){
+			$page_array = array();
+
+			$show_in_menu = 1;
+
+			$app_page_icon = 'ion-earth';
+			if(get_post_meta( $app_page->ID, 'pyre_link_icon_url', true )){
+				$app_page_icon = get_post_meta( $app_page->ID, 'pyre_link_icon_url', true );
 			}
+			
+			$page_array['id']			= $app_page->ID;
+			$page_array['slug']			= $app_page->post_name;
+			$page_array['title']		= $app_page->post_title;
+			$page_array['content']		= $app_page->post_content;
+			$page_array['icon']			= $app_page_icon;
+			$page_array['show_in_menu']			= $show_in_menu;
+			$page_array['created_by']	= $app_page->post_author;
+			$page_array['created_at']	= $app_page->post_date;
+			$page_array['modified_at']	= $app_page->post_modified;
+
+			array_push($app_pages_array, $page_array); 
 		}
 
 		$api_data_array['app_name'] = $andriod_app_name;
 		$api_data_array['app_domain'] = $andriod_app_domain;
 		$api_data_array['app_theme'] = $andriod_app_theme;
 		$api_data_array['app_icon'] = $andriod_app_icon;
+		$api_data_array['app_footer_content'] = $andriod_app_footer_content;
+		$api_data_array['app_directory'] = $andriod_app_directory;
 		$api_data_array['app_version'] = "";
 		$api_data_array['app_last_update'] = "";
-		$api_data_array['app_pages'] = $api_data_pages_array;
+		$api_data_array['app_pages'] = $app_pages_array;
 
 		$api_array['status'] = "success";
 		$api_array['data'] = $api_data_array;
