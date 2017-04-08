@@ -140,6 +140,15 @@ class Aione_Android_Application_Builder_Admin {
 				__('aione_android_app_builder_settings', 'aione_android_app_builder'),
 				array($this,'aione_android_app_builder_settings')
 			);
+		 // Preview
+            $page(
+				__('aione_android_app_builder', 'aione_android_app_builder'),
+				__('Preview', 'aione_android_app_builder'),
+				__('Preview', 'aione_android_app_builder'),
+				__('manage_options', 'aione_android_app_builder'),
+				__('aione_android_app_builder_preview', 'aione_android_app_builder'),
+				array($this,'aione_android_app_builder_preview')
+			);	
 		
 	}
 	
@@ -293,6 +302,108 @@ class Aione_Android_Application_Builder_Admin {
 		}
 		delete_option('andriod_app_icon'); //delete image path from database.
 		}
+	}
+	
+	function aione_android_app_builder_preview(){
+		
+		$output = "<h1> Preview </h1>";
+		$output .= '<div class="preview-outer-div">
+					<div class="image-panel-right">
+					<div class="mobile-frame">
+					<div class="mobile-screen">
+					<img src="https://socialcops.com/images/old/spec/platform/collect/feature-img-monitoring-386.gif"></div>
+					</div>
+					</div>
+					</div>';
+		$output .= '<style>
+			.preview-outer-div {
+				width:40%;
+				margin:0 auto;
+			}
+			.image-panel-right {
+				-webkit-box-ordinal-group: 3;
+				-webkit-order: 2;
+				-ms-flex-order: 2;
+				order: 2;
+				-webkit-flex-shrink: 1;
+				-ms-flex-negative: 1;
+				flex-shrink: 1;
+				position: relative;
+				-webkit-flex-basis: 40%;
+				-ms-flex-preferred-size: 40%;
+				flex-basis: 40%;
+				-webkit-box-flex: 1;
+				-webkit-flex-grow: 1;
+				-ms-flex-positive: 1;
+				flex-grow: 1;
+			}
+			.mobile-frame {
+				position: relative;
+				display: inline-block;
+				background: #4f4c4b;
+				padding: 7rem 1rem;
+				-webkit-border-radius: 18rem/3rem;
+				border-radius: 18rem/3rem;
+				bottom: -13rem;
+				margin-top: -13rem;
+				-webkit-box-shadow: 0 0 8rem rgba(36,33,32,.1);
+				box-shadow: 0 0 8rem rgba(36,33,32,.1);
+				z-index: 1;
+			}
+			
+			.mobile-frame:before {
+				-webkit-border-radius: 1rem 0 0 1rem;
+				border-radius: 1rem 0 0 1rem;
+				left: -.5rem;
+				height: 10rem;
+				top: 20rem;
+				position: absolute;
+				width: .5rem;
+				background: #242120;
+				content: "";
+			}
+			.mobile-frame .mobile-screen {
+				position: relative;
+			}
+			.mobile-frame .mobile-screen:before {
+				content: "";
+				position: absolute;
+				top: -3rem;
+				left: 50%;
+				z-index: 10;
+				background: #242120;
+				height: .2rem;
+				width: .2rem;
+				-webkit-box-shadow: 0 0 0 10px #393736;
+				box-shadow: 0 0 0 10px #393736;
+				-webkit-border-radius: 1rem;
+				border-radius: 1rem;
+			}
+			.mobile-frame .mobile-screen img {
+				width: auto;
+				-webkit-border-radius: .5rem;
+				border-radius: .5rem;
+				position: relative;
+				max-width: 300px;
+				max-height: 67vh;
+				min-height: 40rem;
+			}
+			.mobile-frame:after {
+				-webkit-border-radius: 0 1rem 1rem 0;
+				border-radius: 0 1rem 1rem 0;
+				right: -.5rem;
+				height: 6rem;
+				top: 12rem;
+				position: absolute;
+				width: .5rem;
+				background: #242120;
+				content: "";
+			}
+			
+		
+		</style>';
+		echo $output;
+		//return $output;
 	}
 
 }
