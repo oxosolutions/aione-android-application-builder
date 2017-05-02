@@ -222,7 +222,18 @@ class Aione_Android_Application_Builder {
 		);
 		
 		$app_id = $_REQUEST['app_id'];
+		
 		$app_secret = $_REQUEST['app_secret'];
+		if(isset($app_id) && $app_id !='' ){
+			
+		} else {
+			$app_id = 1;
+		}
+		
+		//$app_id = 1;
+		
+		global $switched;
+		switch_to_blog($app_id);
 		
 		$andriod_app_name = stripslashes(trim(get_option('andriod_app_name')));
 		$andriod_app_domain = stripslashes(trim(get_option('andriod_app_domain')));
@@ -251,12 +262,15 @@ class Aione_Android_Application_Builder {
 
 		foreach($app_pages as $app_page){
 			$page_array = array();
-
+			
+			$app_page_icon = 'ion-earth';
 			$show_in_menu = 1;
 
-			$app_page_icon = 'ion-earth';
-			if(get_post_meta( $app_page->ID, 'pyre_link_icon_url', true )){
-				$app_page_icon = get_post_meta( $app_page->ID, 'pyre_link_icon_url', true );
+			if(get_post_meta( $app_page->ID, 'android_page_icon', true )){
+				$app_page_icon = get_post_meta( $app_page->ID, 'android_page_icon', true );
+			}
+			if(get_post_meta( $app_page->ID, 'android_show_in_menu', true )){
+				$show_in_menu = get_post_meta( $app_page->ID, 'android_show_in_menu', true );
 			}
 			
 			$page_array['id']			= $app_page->ID;
@@ -287,8 +301,10 @@ class Aione_Android_Application_Builder {
 
 		
 		$json_api = json_encode($api_array);
+		
+		restore_current_blog();
 
-		return trim($json_api);
+		return trim($json_api); 
 	} // End aione_andriod_api_shortcode()
 
 }
