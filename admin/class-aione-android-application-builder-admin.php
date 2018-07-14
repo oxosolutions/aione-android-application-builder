@@ -57,7 +57,7 @@ class Aione_Android_Application_Builder_Admin {
 		add_action( 'init', array( $this, 'register_app_pages_post_type' ) );
 		
 		// Add function on admin initalization.
-		add_action('admin_init', array($this, 'ink_options_setup'));
+		add_action('admin_init', array($this, 'link_options_setup'));
 
 		// Call Function to store value into database.
 		add_action('init', array($this, 'store_in_database'));
@@ -70,6 +70,12 @@ class Aione_Android_Application_Builder_Admin {
 		
 		// Save meta box values into database.
 		add_action('save_post', array($this, 'save_aione_android_application_builder_meta_box'));
+
+		// On trash some App_Pages
+		add_action( 'wp_trash_post', array($this, 'aione_android_application_builder_settings_change_callback' ));
+		add_action('transition_post_status', array($this,'aione_android_application_builder_settings_change_callback'), 10, 3);
+
+
 
 
 	}
@@ -321,14 +327,72 @@ class Aione_Android_Application_Builder_Admin {
 	// Andriod App Settings
 	function aione_android_app_builder_settings(){
 		global $wpdb;
+		global $post;
 		$andriod_app_name = get_option('andriod_app_name');
+		$andriod_app_menu_title = get_option('andriod_app_menu_title');
 		$andriod_app_domain = get_option('andriod_app_domain');
 		$andriod_app_theme = get_option('andriod_app_theme');
+		$andriod_app_front_page = get_option('andriod_app_front_page'); 
 		$andriod_app_icon = get_option('andriod_app_icon');
 		$andriod_app_footer_content = stripslashes(get_option('andriod_app_footer_content'));
-
+		$andriod_app_custom_css = stripslashes(get_option('andriod_app_custom_css'));
+		$andriod_app_custom_js = stripslashes(get_option('andriod_app_custom_js'));
+		$andriod_enable_custom_posts = get_option('andriod_enable_custom_posts');
+		$andriod_app_post_single_template = stripslashes(get_option('andriod_app_post_single_template'));
+		$andriod_app_post_archive_template = stripslashes(get_option('andriod_app_post_archive_template'));
+		$andriod_app_post_template_custom_css = stripslashes(get_option('andriod_app_post_template_custom_css'));
+		$andriod_app_post_template_custom_js = stripslashes(get_option('andriod_app_post_template_custom_js'));
+		$andriod_app_page_single_template = stripslashes(get_option('andriod_app_page_single_template'));
+		$andriod_app_page_archive_template = stripslashes(get_option('andriod_app_page_archive_template'));
+		$andriod_app_page_template_custom_css = stripslashes(get_option('andriod_app_page_template_custom_css'));
+		$andriod_app_page_template_custom_js = stripslashes(get_option('andriod_app_page_template_custom_js'));    	
+		//echo "<pre>";print_r($andriod_enable_custom_posts);
+		$args = array(
+			'posts_per_page'   => -1,
+			'offset'           => 0,
+			'category'         => '',
+			'category_name'    => '',
+			'orderby'          => 'date',
+			'order'            => 'DESC',
+			'include'          => '',
+			'exclude'          => '',
+			'meta_key'         => '',
+			'meta_value'       => '',
+			'post_type'        => 'app_pages',
+			'post_mime_type'   => '',
+			'post_parent'      => '',
+			'author'	   => '',
+			'author_name'	   => '',
+			'post_status'      => 'publish',
+			'suppress_filters' => true 
+		);
+		$app_pages_array = get_posts( $args ); 
 		?>
 		<div class="wrap"> 
+			<?php
+			if( isset( $_GET[ 'tab' ] ) ) {
+			    $active_tab = $_GET[ 'tab' ];
+			} else {
+				$active_tab = "default";
+				//delete_option( 'andriod_enable_custom_posts' );
+			}
+			?>
+			<h2 class="nav-tab-wrapper">
+			    <a href="?page=aione_android_app_builder_settings&tab=default" class="nav-tab <?php echo $active_tab == 'default' ? 'nav-tab-active' : ''; ?>">Andriod App Settings</a>
+			    <a href="?page=aione_android_app_builder_settings&tab=posts" class="nav-tab <?php echo $active_tab == 'posts' ? 'nav-tab-active' : ''; ?>">Posts Settings</a>
+			    <a href="?page=aione_android_app_builder_settings&tab=pages" class="nav-tab <?php echo $active_tab == 'pages' ? 'nav-tab-active' : ''; ?>">Pages Settings</a>
+			    <?php
+			    if ($andriod_enable_custom_posts) {
+			    	foreach( $andriod_enable_custom_posts as $name => $label ){
+				        $class = ( $name == $active_tab ) ? ' nav-tab-active' : '';
+				        echo "<a class='nav-tab$class' href='?page=aione_android_app_builder_settings&tab=$name'>$label Settings</a>";
+				    }
+			    }
+			    ?>
+			</h2>
+			<?php 
+			if($active_tab == 'default') {	
+			?>
 			<h2>Andriod App Settings</h2>
 			<div class="">
 				<form name="" class="" id="" method="post" action="" enctype="multipart/form-data">
@@ -342,10 +406,23 @@ class Aione_Android_Application_Builder_Admin {
 				<th scope="row"><label for="andriod_app_domain">App Domain</label></th>
 				<td><input name="andriod_app_domain" type="text" id="andriod_app_domain" value="<?php echo $andriod_app_domain; ?>" class="regular-text"></td>
 				</tr>
+				<tr>
 				<th scope="row"><label for="andriod_app_domain">App Theme</label></th>
 				<td><select name="andriod_app_theme">
 				<option value="royal" <?php if($andriod_app_theme == "royal"){echo 'selected="selected"';} ?> >Royal</option>
 				<option value="clean" <?php if($andriod_app_theme == "clean"){echo 'selected="selected"';} ?>>Clean</option>
+				</select></td>
+				</tr>
+
+				<tr>
+				<th scope="row"><label for="andriod_app_front_page">App Front Page</label></th>
+				<td><select name="andriod_app_front_page">
+					<option value="">--Select Page--</option>
+				<?php
+				foreach ( $app_pages_array as $post ) : setup_postdata( $post ); ?>
+					<option value="<?php echo $post->post_name; ?>" <?php if($andriod_app_front_page ==  $post->post_name){echo 'selected="selected"';} ?> ><?php the_title(); ?></option>
+				<?php endforeach; 
+				wp_reset_postdata();?>
 				</select></td>
 				</tr>
 				
@@ -353,16 +430,17 @@ class Aione_Android_Application_Builder_Admin {
 				<tr>
 				<th scope="row"><label for="andriod_app_icon">App Icon</label></th>
 				<td>
-				<input type="text" name="path" class="image_path" id="image_path" value="<?php echo $andriod_app_icon; ?>" >
-				<input type="button" value="Upload Image" class="button-primary" id="upload_image"/> Upload your Image from here.
-				<div id="show_upload_preview">
 
-				<?php if(! empty($andriod_app_icon)){
+				 <input type="text" name="path" class="image_path" id="image_path" value="<?php echo $andriod_app_icon; ?>" >
+				<!-- <input type="button" value="Upload Image" class="button-primary" id="upload_image"/> Upload your Image from here.
+				<div id="show_upload_preview"> -->
+
+				<?php //if(! empty($andriod_app_icon)){
 				?>
-				<img src="<?php echo $andriod_app_icon ; ?>">
-				<input type="submit" name="remove" value="Remove Image" class="button-secondary" id="remove_image"/>
-				<?php } ?>
-				</div>
+				 <!-- <img src="<?php echo $andriod_app_icon ; ?>">
+				<input type="submit" name="remove" value="Remove Image" class="button-secondary" id="remove_image"/>  -->
+				<?php// } ?>
+				</div> 
 				</td>
 				</tr>
 				<tr>
@@ -372,12 +450,191 @@ class Aione_Android_Application_Builder_Admin {
 				</td>
 				</tr>
 
+				<tr>
+				<th scope="row"><label for="andriod_app_custom_css">Custom CSS</label></th>
+				<td>
+				<textarea placeholder="/*Add Custom CSS Here */" name="andriod_app_custom_css" id="andriod_app_custom_css" class="regular-text textarea" rows="10"><?php echo $andriod_app_custom_css; ?></textarea>
+				</td>
+				</tr>
+				<tr>
+				<th scope="row"><label for="andriod_app_custom_js">Custom JS</label></th>
+				<td>
+				<textarea placeholder="/*Add Custom JS Here */" name="andriod_app_custom_js" id="andriod_app_custom_js" class="regular-text textarea" rows="10"><?php echo $andriod_app_custom_js; ?></textarea>
+				</td>
+				</tr>
+
+				<tr>
+				<th scope="row"><label>Enable Custom Posts</label></th>
+				<td>
+				<?php
+				$args = array(
+				   'public'   => true,
+				   '_builtin' => false
+				);
+
+				$output = 'objects'; // names or objects, note names is the default
+				$operator = 'and'; // 'and' or 'or'
+
+				$post_types = get_post_types( $args, $output, $operator );
+				foreach ($post_types as $post_type) {
+					if($post_type->name == "app_pages"){
+						continue;
+					}
+					if ( is_array( $andriod_enable_custom_posts ) && in_array( $post_type->label, $andriod_enable_custom_posts ) ) {
+			            $checked = "checked='checked'";
+			        } else {
+			            $checked = null;
+			        }
+					echo "<input type='checkbox' name='andriod_enable_custom_posts[$post_type->name]' ".$checked." value='".$post_type->label."' id='".$post_type->name."'><label for='".$post_type->name."'>".$post_type->label."</label></br>";
+				}
+				?>
+				</td>
+				</tr>
+				<tr>
+				<th scope="row"><label for="andriod_app_menu_title">Menu Title</label></th>
+				<?php
+				if($andriod_app_menu_title){
+					$menu = $andriod_app_menu_title;
+				} else {
+					$menu= "Menu";
+				}
+				?>
+				<td><input name="andriod_app_menu_title" type="text" id="andriod_app_menu_title" value="<?php echo $menu; ?>" class="regular-text"></td>
+				</tr>
 				</tbody></table>
 
 				
 				<p class="submit"><input type="submit" id="submit_button" name="app_setting_save" class="button button-primary" value="Save Settings"></p>
 				</form>
 			</div>
+			<?php
+		    } elseif ($active_tab == 'posts') {
+		    ?>
+		    <h2>Posts Settings</h2>
+			<div class="">
+				<form name="" class="" id="" method="post" action="" enctype="multipart/form-data">
+				<table class="form-table">
+				<tbody>
+				<tr>
+				<th scope="row"><label for="andriod_app_post_single_template">Single Template</label></th>
+				<td>
+				<textarea name="andriod_app_post_single_template" id="andriod_app_post_single_template" class="regular-text textarea" rows="10"><?php echo $andriod_app_post_single_template; ?></textarea>
+				</td>
+				</tr>
+				<tr>
+				<th scope="row"><label for="andriod_app_post_archive_template">Archive Template</label></th>
+				<td>
+				<textarea name="andriod_app_post_archive_template" id="andriod_app_post_archive_template" class="regular-text textarea" rows="10"><?php echo $andriod_app_post_archive_template; ?></textarea>
+				</td>
+				</tr>
+				<tr>
+				<th scope="row"><label for="andriod_app_post_template_custom_css">Custom CSS</label></th>
+				<td>
+				<textarea placeholder="/*Add Custom CSS Here */" name="andriod_app_post_template_custom_css" id="andriod_app_post_template_custom_css" class="regular-text textarea" rows="10"><?php echo $andriod_app_post_template_custom_css; ?></textarea>
+				</td>
+				</tr>
+				<tr>
+				<th scope="row"><label for="andriod_app_post_template_custom_js">Custom JS</label></th>
+				<td>
+				<textarea placeholder="/*Add Custom JS Here */" name="andriod_app_post_template_custom_js" id="andriod_app_post_template_custom_js" class="regular-text textarea" rows="10"><?php echo $andriod_app_post_template_custom_js; ?></textarea>
+				</td>
+				</tr>
+				</tbody></table>
+
+				
+				<p class="submit"><input type="submit" id="submit_button" name="app_posts_setting_save" class="button button-primary" value="Save Post Settings"></p>
+				</form>
+		    <?php
+		    } elseif ($active_tab == 'pages') {
+		    ?>
+		    <h2>Pages Settings</h2>
+			<div class="">
+				<form name="" class="" id="" method="post" action="" enctype="multipart/form-data">
+				<table class="form-table">
+				<tbody>
+				<tr>
+				<th scope="row"><label for="andriod_app_page_single_template">Single Template</label></th>
+				<td>
+				<textarea name="andriod_app_page_single_template" id="andriod_app_page_single_template" class="regular-text textarea" rows="10"><?php echo $andriod_app_page_single_template; ?></textarea>
+				</td>
+				</tr>
+				<tr>
+				<th scope="row"><label for="andriod_app_page_archive_template">Archive Template</label></th>
+				<td>
+				<textarea name="andriod_app_page_archive_template" id="andriod_app_page_archive_template" class="regular-text textarea" rows="10"><?php echo $andriod_app_page_archive_template; ?></textarea>
+				</td>
+				</tr>
+				<tr>
+				<th scope="row"><label for="andriod_app_page_template_custom_css">Custom CSS</label></th>
+				<td>
+				<textarea placeholder="/*Add Custom CSS Here */" name="andriod_app_page_template_custom_css" id="andriod_app_page_template_custom_css" class="regular-text textarea" rows="10"><?php echo $andriod_app_page_template_custom_css; ?></textarea>
+				</td>
+				</tr>
+				<tr>
+				<th scope="row"><label for="andriod_app_page_template_custom_js">Custom JS</label></th>
+				<td>
+				<textarea placeholder="/*Add Custom JS Here */" name="andriod_app_page_template_custom_js" id="andriod_app_page_template_custom_js" class="regular-text textarea" rows="10"><?php echo $andriod_app_page_template_custom_css; ?></textarea>
+				</td>
+				</tr>
+				</tbody></table>
+
+				
+				<p class="submit"><input type="submit" id="submit_button" name="app_pages_setting_save" class="button button-primary" value="Save Page Settings"></p>
+				</form>
+		    <?php
+		    } else {
+		    	if ($andriod_enable_custom_posts) { 
+		    	foreach( $andriod_enable_custom_posts as $name => $label ){
+		    	   $single_template_variable = "andriod_app_".$name."_single_template";
+			       $archive_template_variable = "andriod_app_".$name."_archive_template";
+			       $css_template_variable = "andriod_app_".$name."_custom_css";
+			       $js_template_variable = "andriod_app_".$name."_custom_js";
+			       $save_template_variable = "app_".$name."_setting_save";
+			       $single_template_value = stripslashes(get_option("andriod_app_".$name."_single_template"));
+			       $archive_template_value = stripslashes(get_option("andriod_app_".$name."_archive_template"));
+			       $css_template_value =stripslashes(get_option( "andriod_app_".$name."_custom_css"));
+			       $js_template_value = stripslashes(get_option("andriod_app_".$name."_custom_js"));
+			       ?>
+			       <h2><?php echo $label;?> Settings</h2>
+					<div class="">
+						<form name="" class="" id="" method="post" action="" enctype="multipart/form-data">
+						<table class="form-table">
+						<tbody>
+						<tr>
+						<th scope="row"><label for="<?php echo $single_template_variable;?>">Single Template</label></th>
+						<td>
+						<textarea name="<?php echo $single_template_variable;?>" id="<?php echo $single_template_variable;?>" class="regular-text textarea" rows="10"><?php echo $single_template_value;?></textarea>
+						</td>
+						</tr>
+						<tr>
+						<th scope="row"><label for="<?php echo $archive_template_variable;?>">Archive Template</label></th>
+						<td>
+						<textarea name="<?php echo $archive_template_variable;?>" id="<?php echo $archive_template_variable;?>" class="regular-text textarea" rows="10"><?php echo $archive_template_value; ?></textarea>
+						</td>
+						</tr>
+						<tr>
+						<th scope="row"><label for="<?php echo $css_template_variable;?>">Custom CSS</label></th>
+						<td>
+						<textarea placeholder="/*Add Custom CSS Here */" name="<?php echo $css_template_variable;?>" id="<?php echo $css_template_variable;?>" class="regular-text textarea" rows="10"><?php echo $css_template_value; ?></textarea>
+						</td>
+						</tr>
+						<tr>
+						<th scope="row"><label for="<?php echo $js_template_variable;?>">Custom JS</label></th>
+						<td>
+						<textarea placeholder="/*Add Custom JS Here */" name="<?php echo $js_template_variable;?>" id="<?php echo $js_template_variable;?>" class="regular-text textarea" rows="10"><?php echo $js_template_value; ?></textarea>
+						</td>
+						</tr>
+						</tbody></table>
+
+						
+						<p class="submit"><input type="submit" id="submit_button" name="<?php echo $save_template_variable;?>" class="button button-primary" value="Save <?php echo $label;?> Settings"></p>
+						</form>
+			    <?php
+			    
+			    } // foreach
+		    	} // if
+		    } // else
+		    ?>
 		</div>
 
 
@@ -386,8 +643,8 @@ class Aione_Android_Application_Builder_Admin {
 
 	
 
-	public function ink_options_setup() {
-		global $pagenow;
+	public function link_options_setup() {
+		global $pagenow; 
 		if ('media-upload.php' == $pagenow || 'async-upload.php' == $pagenow) {
 		// Now we will replace the 'Insert into Post Button inside Thickbox'
 		add_filter('gettext', array($this, 'replace_window_text'), 1, 2);
@@ -399,7 +656,7 @@ class Aione_Android_Application_Builder_Admin {
 		if ('Insert into Post' == $text) {
 		$referer = strpos(wp_get_referer(), 'media_page');
 		if ($referer != '') {
-		return __('Upload Image', 'ink');
+		return __('Upload Image', 'aione-android-application-builder');
 		}
 		}
 		return $translated_text;
@@ -408,17 +665,66 @@ class Aione_Android_Application_Builder_Admin {
 	public function store_in_database(){
 		if(isset($_POST['app_setting_save'])){
 			$andriod_app_name=$_POST['andriod_app_name'];
+			$andriod_app_menu_title=$_POST['andriod_app_menu_title'];
 			$andriod_app_domain=$_POST['andriod_app_domain'];
 			$andriod_app_theme=$_POST['andriod_app_theme'];
+			$andriod_app_front_page=$_POST['andriod_app_front_page'];
 			$andriod_app_icon = $_POST['path'];
 			$andriod_app_footer_content = $_POST['andriod_app_footer_content'];
+			$andriod_app_custom_css = $_POST['andriod_app_custom_css'];
+			$andriod_app_custom_js = $_POST['andriod_app_custom_js'];
+			$andriod_enable_custom_posts = $_POST['andriod_enable_custom_posts'];
 			update_option('andriod_app_name', $andriod_app_name);
+			update_option('andriod_app_menu_title', $andriod_app_menu_title);
 			update_option('andriod_app_domain', $andriod_app_domain);
 			update_option('andriod_app_theme', $andriod_app_theme);
+			update_option('andriod_app_front_page', $andriod_app_front_page);
 			update_option('andriod_app_icon', $andriod_app_icon);
 			update_option('andriod_app_footer_content', $andriod_app_footer_content);
+			update_option('andriod_app_custom_css', $andriod_app_custom_css);
+			update_option('andriod_enable_custom_posts', $andriod_enable_custom_posts);
 			//update_option('ink_image', $image_path);
 		}
+		if(isset($_POST['app_posts_setting_save'])){
+			$andriod_app_post_single_template=$_POST['andriod_app_post_single_template'];
+			$andriod_app_post_archive_template=$_POST['andriod_app_post_archive_template'];
+			$andriod_app_post_template_custom_css=$_POST['andriod_app_post_template_custom_css'];
+			$andriod_app_post_template_custom_js=$_POST['andriod_app_post_template_custom_js'];
+			update_option('andriod_app_post_single_template', $andriod_app_post_single_template);
+			update_option('andriod_app_post_archive_template', $andriod_app_post_archive_template);
+			update_option('andriod_app_post_template_custom_css', $andriod_app_post_template_custom_css);
+			update_option('andriod_app_post_template_custom_js', $andriod_app_post_template_custom_js);
+		}
+		if(isset($_POST['app_pages_setting_save'])){
+			$andriod_app_page_single_template=$_POST['andriod_app_page_single_template'];
+			$andriod_app_page_archive_template=$_POST['andriod_app_page_archive_template'];
+			$andriod_app_page_template_custom_css=$_POST['andriod_app_page_template_custom_css'];
+			$andriod_app_page_template_custom_js=$_POST['andriod_app_page_template_custom_js'];
+			update_option('andriod_app_page_single_template', $andriod_app_page_single_template);
+			update_option('andriod_app_page_archive_template', $andriod_app_page_archive_template);
+			update_option('andriod_app_page_template_custom_css', $andriod_app_page_template_custom_css);
+			update_option('andriod_app_page_template_custom_js', $andriod_app_page_template_custom_js);
+		}
+		$andriod_enable_custom_posts = get_option('andriod_enable_custom_posts');
+		if ($andriod_enable_custom_posts) { 
+	    	foreach( $andriod_enable_custom_posts as $name => $label ){
+	    		$save_template_variable = "app_".$name."_setting_save";
+	    		if(isset($_POST[$save_template_variable])){
+	    			$single_template_variable = "andriod_app_".$name."_single_template";
+			        $archive_template_variable = "andriod_app_".$name."_archive_template";
+			        $css_template_variable = "andriod_app_".$name."_custom_css";
+			        $js_template_variable = "andriod_app_".$name."_custom_js";
+					$single_template=$_POST[$single_template_variable];
+					$archive_template=$_POST[$archive_template_variable];
+					$template_custom_css=$_POST[$css_template_variable];
+					$template_custom_js=$_POST[$js_template_variable];
+					update_option($single_template_variable, $single_template);
+					update_option($archive_template_variable, $archive_template);
+					update_option($css_template_variable, $template_custom_css);
+					update_option($js_template_variable, $template_custom_js);
+				}
+	    	}
+	    }
 	}
 
 	function delete_image() {
@@ -590,5 +896,21 @@ class Aione_Android_Application_Builder_Admin {
 		echo $output;
 		//return $output;
 	}
+
+	function aione_android_application_builder_settings_change_callback(){
+		global $post;
+	    $post_type = $post->post_type;
+	    if ($post_type == 'app_pages'){
+	    	$andriod_app_front_page = stripslashes(trim(get_option('andriod_app_front_page')));
+	    	if($post->post_name == $andriod_app_front_page){
+	    		update_option('andriod_app_front_page', '');
+	    	}
+	    	if($post->post_status != 'publish'){
+	    		update_option('andriod_app_front_page', '');
+	    	}
+	    }
+	}
+
+	
 
 }
